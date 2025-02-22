@@ -1,16 +1,16 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity()
+@Entity("task")
 export class Task {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-    @Column({ length: 80 })
+    @Column()
     name: string;
 
-    @Column({ nullable: true })
-    startDate: string;
+    @Column({ type: 'date', nullable: true})
+    startDate: string | null; // Default to current date
 
-    @Column({ nullable: true })
-    endDate: string;
+    @Column({ type: 'date', nullable: true})
+    endDate: string | null; // Default to current date
 }

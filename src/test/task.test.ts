@@ -1,18 +1,22 @@
 import request from "supertest";
-import { createApp } from "../src/app";
-import { AppDataSource } from "../src/config/database";
-import { Express } from "express";
+import { createApp } from "../app";
+import { AppDataSource } from "../config/database";
+import { Application } from "express";
 
 describe("Task API", () => {
-    let app: Express;
+    let app: Application;
     
     beforeAll(async () => {
-        await AppDataSource.initialize();
+        if (!AppDataSource.isInitialized) {
+            await AppDataSource.initialize();
+        }
         app = createApp();
     });
 
     afterAll(async () => {
-        await AppDataSource.destroy();
+        if (AppDataSource.isInitialized) {
+            await AppDataSource.destroy(); // Properly close connection
+        }
     });
 
     beforeEach(async () => {
@@ -28,8 +32,8 @@ describe("Task API", () => {
         it("should create a new task with valid data", async () => {
             const task = {
                 name: "Test Task",
-                startDate: "2023-01-01",
-                endDate: "2023-01-10"
+                startDate: "2025-01-01",
+                endDate: "2025-01-10"
             };
 
             const response = await request(app)
@@ -62,7 +66,7 @@ describe("Task API", () => {
         it("should create a task with only a startDate", async () => {
             const task = {
                 name: "Task with start date only",
-                startDate: "2023-01-01"
+                startDate: "2025-01-01"
             };
 
             const response = await request(app)
@@ -79,7 +83,7 @@ describe("Task API", () => {
         it("should reject a task with empty name", async () => {
             const task = {
                 name: "",
-                startDate: "2023-01-01"
+                startDate: "2025-01-01"
             };
 
             const response = await request(app)
@@ -93,7 +97,7 @@ describe("Task API", () => {
         it("should reject a task with name longer than 80 characters", async () => {
             const task = {
                 name: "A".repeat(81),
-                startDate: "2023-01-01"
+                startDate: "2025-01-01"
             };
 
             const response = await request(app)
@@ -107,7 +111,7 @@ describe("Task API", () => {
         it("should reject a task with end date but no start date", async () => {
             const task = {
                 name: "Invalid Task",
-                endDate: "2023-01-10"
+                endDate: "2025-01-10"
             };
 
             const response = await request(app)
@@ -121,7 +125,7 @@ describe("Task API", () => {
         it("should reject a task with invalid date format", async () => {
             const task = {
                 name: "Invalid Date Format",
-                startDate: "01/01/2023"
+                startDate: "01/01/2025"
             };
 
             const response = await request(app)
@@ -135,8 +139,8 @@ describe("Task API", () => {
         it("should reject a task with end date before start date", async () => {
             const task = {
                 name: "Invalid Date Range",
-                startDate: "2023-01-10",
-                endDate: "2023-01-01"
+                startDate: "2025-01-10",
+                endDate: "2025-01-01"
             };
 
             const response = await request(app)
@@ -161,11 +165,11 @@ describe("Task API", () => {
             // Create some test tasks
             await request(app)
                 .post("/api/tasks")
-                .send({ name: "Task 1", startDate: "2023-01-01", endDate: "2023-01-10" });
+                .send({ name: "Task 1", startDate: "2025-01-01", endDate: "2025-01-10" });
                 
             await request(app)
                 .post("/api/tasks")
-                .send({ name: "Task 2", startDate: "2023-02-01", endDate: "2023-02-10" });
+                .send({ name: "Task 2", startDate: "2025-02-01", endDate: "2025-02-10" });
 
             const response = await request(app)
                 .get("/api/tasks")
@@ -182,7 +186,7 @@ describe("Task API", () => {
             // Create a test task
             const createResponse = await request(app)
                 .post("/api/tasks")
-                .send({ name: "Get Task Test", startDate: "2023-01-01" });
+                .send({ name: "Get Task Test", startDate: "2025-01-01" });
 
             const taskId = createResponse.body.id;
 
@@ -192,7 +196,7 @@ describe("Task API", () => {
 
             expect(response.body.id).toBe(taskId);
             expect(response.body.name).toBe("Get Task Test");
-            expect(response.body.startDate).toBe("2023-01-01");
+            expect(response.body.startDate).toBe("2025-01-01");
         });
 
         it("should return 404 for non-existent task ID", async () => {
@@ -213,15 +217,15 @@ describe("Task API", () => {
             // Create a test task
             const createResponse = await request(app)
                 .post("/api/tasks")
-                .send({ name: "Original Task", startDate: "2023-01-01" });
+                .send({ name: "Original Task", startDate: "2025-01-01" });
 
             const taskId = createResponse.body.id;
 
             // Update the task
             const updatedTask = {
                 name: "Updated Task",
-                startDate: "2023-02-01",
-                endDate: "2023-02-15"
+                startDate: "2025-02-01",
+                endDate: "2025-02-15"
             };
 
             const response = await request(app)
@@ -238,7 +242,7 @@ describe("Task API", () => {
         it("should return 404 when updating non-existent task", async () => {
             const updatedTask = {
                 name: "This Task Doesn't Exist",
-                startDate: "2023-01-01"
+                startDate: "2025-01-01"
             };
 
             await request(app)
@@ -251,14 +255,14 @@ describe("Task API", () => {
             // Create a test task
             const createResponse = await request(app)
                 .post("/api/tasks")
-                .send({ name: "Task to Update", startDate: "2023-01-01" });
+                .send({ name: "Task to Update", startDate: "2025-01-01" });
 
             const taskId = createResponse.body.id;
 
             // Try to update with invalid data
             const invalidUpdate = {
                 name: "",
-                startDate: "2023-01-01"
+                startDate: "2025-01-01"
             };
 
             const response = await request(app)
@@ -275,7 +279,7 @@ describe("Task API", () => {
             // Create a test task
             const createResponse = await request(app)
                 .post("/api/tasks")
-                .send({ name: "Task to Delete", startDate: "2023-01-01" });
+                .send({ name: "Task to Delete", startDate: "2025-01-01" });
 
             const taskId = createResponse.body.id;
 

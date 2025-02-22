@@ -1,4 +1,5 @@
 import express, { Application, Request, Response } from "express";
+import cors from "cors";    
 import { errorHandler } from "./middleware/errorHandler";
 import taskRoutes from "./routes/taskRoutes";
 
@@ -6,8 +7,9 @@ export const createApp = (): Application => {
     const app: Application = express();
 
     // Middleware
+    app.use(cors());
     app.use(express.json());
-    
+        
     // Routes
     app.use("/api/tasks", taskRoutes);
     
@@ -16,7 +18,7 @@ export const createApp = (): Application => {
         res.json({ message: "Todo API is running" });
     });
 
-    // Error handling middleware (must be last)
+    // Error handling middleware
     app.use(errorHandler);
 
     return app;

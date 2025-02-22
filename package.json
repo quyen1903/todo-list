@@ -5,12 +5,26 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "ts-node-dev src/server.ts",
+    "dev": "ts-node-dev --respawn src/server.ts",
     "build": "tsc",
-    "test": "jest",
-    "lint": "eslint . --ext .ts"
+    "test": "jest --config test-config/jest.config.ts",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "jest --config test-config/jest.e2e.config.ts",
+    "test:integration": "jest --config test-config/jest.integration.config.ts",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "prepare": "husky install",
+    "docker:build": "docker build -t todo-app .",
+    "docker:run": "docker run -p 3000:3000 todo-app",
+    "db:migrate": "typeorm migration:run",
+    "db:create-migration": "typeorm migration:create",
+    "validate": "npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "http-status-codes": "^2.3.0",
@@ -42,7 +56,18 @@
       "**/test/**/*.test.ts"
     ],
     "setupFilesAfterEnv": [
-      "./jest.setup.js"
-    ]
+      "<rootDir>/jest.setup.ts"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
   }
 }

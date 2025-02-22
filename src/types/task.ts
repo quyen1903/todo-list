@@ -1,11 +1,11 @@
 export interface TaskDto {
     name: string;
-    startDate: string;
-    endDate: string;
+    startDate?: string | null;
+    endDate?: string | null;
 }
 
 export interface TaskResponse extends TaskDto {
-    id: number;
+    id: string;
 }
 
 export interface ValidationResult {

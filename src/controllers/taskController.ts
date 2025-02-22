@@ -5,7 +5,7 @@ import { TaskDto } from "../types/task";
 import { NotFoundError, ValidationError, asyncHandler } from "../middleware/errorHandler";
 
 export class TaskController {
-    private taskService: TaskService;
+    private readonly taskService: TaskService;
 
     constructor() {
         this.taskService = new TaskService();
@@ -17,7 +17,7 @@ export class TaskController {
     });
 
     getTaskById = asyncHandler(async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
+        const id: string = req.params.id
         
         const task = await this.taskService.getTaskById(id);
         if (!task) {
@@ -29,7 +29,6 @@ export class TaskController {
 
     createTask = asyncHandler(async (req: Request, res: Response) => {
         const taskDto: TaskDto = req.body;
-        
         const validationResult = validateTask(taskDto);
         if (!validationResult.isValid) {
             throw new ValidationError("Invalid task data", validationResult.errors);
@@ -40,7 +39,7 @@ export class TaskController {
     });
 
     updateTask = asyncHandler(async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
+        const id: string = req.body.id
         const taskDto: TaskDto = req.body;
         
         const validationResult = validateTask(taskDto);
@@ -57,8 +56,7 @@ export class TaskController {
     });
 
     deleteTask = asyncHandler(async (req: Request, res: Response) => {
-        const id = parseInt(req.params.id, 10);
-        
+        const id: string = (req.params.id);
         const deleted = await this.taskService.deleteTask(id);
         if (!deleted) {
             throw new NotFoundError(`Task with id ${id} not found`);
